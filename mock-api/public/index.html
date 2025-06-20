@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pistas Chiveros Perú</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #1DB954;
+            --dark-color: #121212;
+            --dark-lighter: #181818;
+            --text-color: #FFFFFF;
+            --secondary-text: #b3b3b3;
+            --accent-hover: #1ed760;
+        }
+        
+        body {
+            font-family: 'Circular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--dark-color);
+            color: var(--text-color);
+            padding: 0;
+            margin: 0;
+            padding-bottom: 90px;
+        }
+        
+        .navbar {
+            background-color: rgba(0,0,0,0.7);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
+        .main-container {
+            padding: 20px 30px;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            font-weight: 900;
+            font-size: 28px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), #148a3f);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .search-bar {
+            margin-bottom: 25px;
+            display: flex;
+        }
+        
+        .search-bar input {
+            background-color: #2a2a2a;
+            border: none;
+            color: var(--text-color);
+            padding: 12px 20px;
+            border-radius: 30px 0 0 30px;
+        }
+        
+        .search-bar input:focus {
+            background-color: #333;
+            color: white;
+            box-shadow: none;
+            border: none;
+        }
+        
+        .search-bar button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 30px 30px 0;
+            padding: 0 25px;
+            transition: background-color 0.2s;
+        }
+        
+        .search-bar button:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        table {
+            background-color: var(--dark-lighter);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        thead th {
+            background-color: rgba(0,0,0,0.3);
+            color: var(--secondary-text);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 12px;
+            padding: 12px 20px;
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin: 0 5px;
+        }
+        #player {
+            margin-top: 20px;
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 5px;
+            color: white;
+        }
+        .now-playing {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        /* Estilos para el reproductor de audio fijo estilo Spotify */
+        #player-container {
+            background-color: #181818;
+            border-top: 1px solid #282828;
+            padding: 0;
+            width: 100%;
+            z-index: 1000;
+            height: 90px;
+        }
+        
+        .player-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            height: 100%;
+        }
+        
+        /* Información de la canción */
+        #now-playing-info {
+            display: flex;
+            align-items: center;
+            width: 30%;
+        }
+        
+        .now-playing-artwork {
+            width: 55px;
+            height: 55px;
+            background-color: #333;
+            border-radius: 4px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .now-playing-artwork i {
+            font-size: 24px;
+            color: #b3b3b3;
+        }
+        
+        #now-playing-text {
+            overflow: hidden;
+        }
+        
+        .song-title {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        
+        .song-artist {
+            color: #b3b3b3;
+            font-size: 12px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        
+        /* Controles centrales */
+        .player-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+        
+        .controls-main {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: #b3b3b3;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px 12px;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            color: white;
+        }
+        
+        .play-pause-btn {
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 16px;
+        }
+        
+        .play-pause-btn:hover {
+            transform: scale(1.05);
+            color: black;
+        }
+        
+        /* Barra de progreso */
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        
+        .time {
+            color: #b3b3b3;
+            font-size: 12px;
+            width: 35px;
+            text-align: center;
+        }
+        
+        #progress-bar-container {
+            flex: 1;
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            margin: 0 8px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+        }
+        
+        /* Control de volumen */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            width: 30%;
+            justify-content: flex-end;
+        }
+        
+        .volume-container i {
+            color: #b3b3b3;
+            margin-right: 8px;
+        }
+        
+        #volume-slider {
+            width: 80px;
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        #volume-level {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+            width: 70%;
+        }
+        
+        /* Ajuste para acomodar el reproductor fijo */
+        body {
+            padding-bottom: 90px;
+        }
+        
+        /* Estilos para botones de la lista */
+        .btn-play {
+            background: transparent;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-play:hover {
+            color: var(--primary-color);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Pistas Chiveros Perú</a>
+        </div>
+    </nav>
+    
+    <div class="main-container">
+        <h1>Explora nuestra colección</h1>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="total-files">Cargando...</div>
+                <div class="stat-label">Total de Archivos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-size">Cargando...</div>
+                <div class="stat-label">Tamaño Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="bucket-name">Cargando...</div>
+                <div class="stat-label">Nombre del Bucket</div>
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Buscar por nombre de archivo o artista..." class="form-control">
+            <button onclick="searchFiles()" class="btn">Buscar</button>
+        </div>
+        
+        <div id="files-container">
+            <table id="files-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Artista</th>
+                        <th>Archivo</th>
+                        <th>Tamaño</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="files-list">
+                    <!-- Los archivos se cargarán aquí -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="pagination" class="pagination">
+            <button id="prev-page" class="btn page-link" disabled>Anterior</button>
+            <span id="page-info" class="mx-3 align-self-center">Página 1 de 1</span>
+            <button id="next-page" class="btn page-link">Siguiente</button>
+        </div>
+    </div>
+
+    <!-- Reproductor estilo Spotify - Fijo en la parte inferior -->
+    <div id="player-container" style="display: none;" class="fixed-bottom">
+        <div class="player-inner">
+            <!-- Información de la canción -->
+            <div id="now-playing-info">
+                <div id="now-playing-artwork" class="now-playing-artwork">
+                    <i class="bi bi-music-note-beamed"></i>
+                </div>
+                <div id="now-playing-text">
+                    <div id="now-playing-title" class="song-title">Titulo de la canción</div>
+                    <div id="now-playing-artist" class="song-artist">Artista</div>
+                </div>
+            </div>
+            
+            <!-- Controles centrales -->
+            <div class="player-center">
+                <div id="player-controls" class="controls-main">
+                    <button id="prev-song" class="control-btn">
+                        <i class="bi bi-skip-start-fill"></i>
+                    </button>
+                    <button id="play-pause" class="control-btn play-pause-btn">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                    <button id="next-song" class="control-btn">
+                        <i class="bi bi-skip-end-fill"></i>
+                    </button>
+                </div>
+                
+                <div id="progress-container" class="progress-container">
+                    <div id="current-time" class="time">00:00</div>
+                    <div id="progress-bar-container">
+                        <div id="progress-bar"></div>
+                    </div>
+                    <div id="duration" class="time">00:00</div>
+                </div>
+            </div>
+            
+            <!-- Control de volumen -->
+            <div id="volume-container" class="volume-container">
+                <i class="bi bi-volume-up"></i>
+                <div id="volume-slider">
+                    <div id="volume-level"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Player oculto -->
+        <audio id="audio-player"></audio>
+    </div>
+
+    <script>
+        // Variables y constantes globales
+        let allFiles = [];
+        let filteredFiles = [];
+        let currentPage = 1;
+        const filesPerPage = 20;
+        let isPlaying = false;
+        let currentSongIndex = -1;
+        
+        // Referencias a elementos DOM
+        const audioPlayer = document.getElementById('audio-player');
+        const playerContainer = document.getElementById('player-container');
+        const playPauseButton = document.getElementById('play-pause');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const durationDisplay = document.getElementById('duration');
+        const nowPlayingTitle = document.getElementById('now-playing-title');
+        const nowPlayingArtist = document.getElementById('now-playing-artist');
+        const nowPlayingArtwork = document.getElementById('now-playing-artwork');
+        
+        // Elementos de paginación y búsqueda
+        const searchInput = document.getElementById('search-input');
+        const filesList = document.getElementById('files-list');
+        const prevPageButton = document.getElementById('prev-page');
+        const nextPageButton = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+
+        // Formatear tamaño de archivo
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+            else return (bytes / 1073741824).toFixed(2) + ' GB';
+        }
+        
+        // Cargar la información del bucket y archivos
+        async function loadBucketInfo() {
+            try {
+                const response = await fetch('/api/bucket-info');
+                const data = await response.json();
+                
+                // Actualizar estadísticas
+                document.getElementById('total-files').textContent = data.totalFiles;
+                document.getElementById('bucket-name').textContent = data.bucketName;
+                
+                // Calcular tamaño total
+                const totalSizeBytes = data.filesList.reduce((acc, file) => acc + file.size, 0);
+                const totalSizeGB = (totalSizeBytes / (1024 * 1024 * 1024)).toFixed(2);
+                document.getElementById('total-size').textContent = `${totalSizeGB} GB`;
+                
+                // Procesar archivos para extraer información
+                allFiles = data.filesList.map(file => {
+                    // Extraer título y artista del nombre del archivo
+                    const filename = file.name;
+                    let artist = 'Desconocido';
+                    let title = filename;
+                    
+                    // Intentar extraer artista y título del nombre del archivo
+                    const match = filename.match(/(.+?)\s*-\s*(.+)\.mp3$/i);
+                    if (match) {
+                        artist = match[1].trim();
+                        title = match[2].trim();
+                    }
+                    
+                    return {
+                        name: file.name,
+                        size: file.size,
+                        lastModified: file.lastModified,
+                        artist: artist,
+                        title: title,
+                        key: file.name // Clave para identificar el archivo
+                    };
+                });
+                
+                // Inicializar filteredFiles con todos los archivos
+                filteredFiles = [...allFiles];
+                
+                // Mostrar archivos
+                displayFiles();
+            } catch (error) {
+                console.error('Error al cargar la información del bucket:', error);
+                alert('Error al cargar los archivos. Por favor, intenta de nuevo más tarde.');
+            }
+        }
+        
+        // Reproductor de audio
+        function playSong(index) {
+            const file = filteredFiles[(currentPage - 1) * filesPerPage + index];
+            if (!file) return;
+            
+            // Obtener URL firmada para reproducción
+            getSongUrl(file.key)
+                .then(url => {
+                    if (!url) {
+                        console.error('No se pudo obtener la URL de la canción');
+                        return;
+                    }
+                    
+                    // Actualizar reproductor
+                    audioPlayer.src = url;
+                    audioPlayer.play()
+                        .then(() => {
+                            // Actualizar UI
+                            currentSongIndex = (currentPage - 1) * filesPerPage + index;
+                            isPlaying = true;
+                            updatePlayerUI(file);
+                            playerContainer.style.display = 'flex';
+                        })
+                        .catch(err => console.error('Error al reproducir:', err));
+                })
+                .catch(err => console.error('Error al obtener URL:', err));
+        }
+        
+        // Obtener URL firmada para un archivo
+        async function getSongUrl(key) {
+            try {
+                const response = await fetch(`/api/audio/url?key=${encodeURIComponent(key)}`);
+                const data = await response.json();
+                return data.url || null;
+            } catch (error) {
+                console.error('Error al obtener URL firmada:', error);
+                return null;
+            }
+        }
+
+        // Mostrar archivos con paginación
+        function displayFiles() {
+            const filesList = document.getElementById('files-list');
+            filesList.innerHTML = '';
+            
+            // Calcular índices para paginación
+            const startIdx = (currentPage - 1) * filesPerPage;
+            const endIdx = Math.min(startIdx + filesPerPage, filteredFiles.length);
+            
+            // Actualizar información de paginación
+            const totalPages = Math.ceil(filteredFiles.length / filesPerPage);
+            document.getElementById('page-info').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage >= totalPages;
+            
+            // Si no hay archivos para mostrar
+            if (filteredFiles.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" class="text-center">No se encontraron archivos</td>';
+                filesList.appendChild(row);
+                return;
+            }
+            
+            // Mostrar los archivos de la página actual
+            for (let i = startIdx; i < endIdx; i++) {
+                const file = filteredFiles[i];
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${file.title}</td>
+                    <td>${file.artist}</td>
+                    <td>${formatFileSize(file.size)}</td>
+                    <td>
+                        <button class="btn-play" onclick="playSong(${i - startIdx})">
+                            <i class="bi bi-play-fill"></i>
+                        </button>
+                    </td>
+                `;
+                
+                filesList.appendChild(row);
+            }
+        }
+        
+        // Actualizar UI del reproductor
+        function updatePlayerUI(song) {
+            // Actualizar información de la canción
+            nowPlayingTitle.textContent = song.title;
+            nowPlayingArtist.textContent = song.artist;
+            
+            // Mostrar u ocultar controles según estado
+            if (isPlaying) {
+                playPauseButton.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            } else {
+                playPauseButton.innerHTML = '<i class="bi bi-play-fill"></i>';
+            }
+            
+            // Actualizar artwork (imagen genérica por ahora)
+            nowPlayingArtwork.innerHTML = '<i class="bi bi-music-note-beamed"></i>';
+        }
+        // Configuración de eventos para los controles del reproductor
+        function setupPlayerControls() {
+            // Play/Pause
+            playPauseButton.addEventListener('click', () => {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    isPlaying = true;
+                } else {
+                    audioPlayer.pause();
+                    isPlaying = false;
+                }
+                updatePlayerUI(filteredFiles[currentSongIndex]);
+            });
+            
+            // Actualizar barra de progreso
+            audioPlayer.addEventListener('timeupdate', () => {
+                const currentTime = audioPlayer.currentTime;
+                const duration = audioPlayer.duration;
+                
+                // Actualizar visualización de tiempo
+                currentTimeDisplay.textContent = formatTime(currentTime);
+                durationDisplay.textContent = formatTime(duration);
+                
+                // Actualizar barra de progreso
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            });
+            
+            // Cuando termina la canción, reproducir la siguiente
+            audioPlayer.addEventListener('ended', () => {
+                playNextSong();
+            });
+        }
+        
+        // Reproducir siguiente canción
+        function playNextSong() {
+            if (currentSongIndex < filteredFiles.length - 1) {
+                playSong(currentSongIndex + 1 - ((currentPage - 1) * filesPerPage));
+            }
+        }
+        
+        // Reproducir canción anterior
+        function playPreviousSong() {
+            if (currentSongIndex > 0) {
+                playSong(currentSongIndex - 1 - ((currentPage - 1) * filesPerPage));
+            }
+        }
+        
+        // Formatear tiempo en formato mm:ss
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '00:00';
+            
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Filtrar archivos por término de búsqueda
+        function searchFiles() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredFiles = [...allFiles];
+            } else {
+                filteredFiles = allFiles.filter(file => {
+                    return (
+                        file.name.toLowerCase().includes(searchTerm) ||
+                        file.artist.toLowerCase().includes(searchTerm) ||
+                        file.title.toLowerCase().includes(searchTerm)
+                    );
+                });
+            }
+            
+            // Reiniciar paginación y mostrar resultados
+            currentPage = 1;
+            displayFiles();
+        }
+
+        // Configurar los eventos de botones de paginación
+        function setupPaginationEvents() {
+            // Botón página anterior
+            prevPageButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayFiles();
+                    window.scrollTo(0, 0);
+                }
+            });
+            
+            // Botón siguiente página
+            nextPageButton.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredFiles.length / filesPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayFiles();
+                    window.scrollTo(0, 0);
+                }
+            });
+        }
+        
+        // Configurar eventos de búsqueda
+        function setupSearchEvents() {
+            // Botón de búsqueda
+            document.querySelector('.search-bar button').addEventListener('click', searchFiles);
+            
+            // Búsqueda al presionar Enter
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchFiles();
+                }
+            });
+        }
+        
+        // Inicialización de la aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar datos del bucket
+            loadBucketInfo();
+            
+            // Configurar todos los eventos
+            setupPlayerControls();
+            setupPaginationEvents();
+            setupSearchEvents();
+            
+            // Configurar eventos para el reproductor
+            document.getElementById('prev-song').addEventListener('click', playPreviousSong);
+            document.getElementById('next-song').addEventListener('click', playNextSong);
+        });
+    </script>
+</body>
+</html>

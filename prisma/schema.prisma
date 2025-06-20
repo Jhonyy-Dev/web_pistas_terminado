@@ -1,0 +1,218 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  username        String   @unique @db.VarChar(50)
+  email           String   @unique @db.VarChar(100)
+  passwordHash    String   @map("password_hash") @db.VarChar(255)
+  fullName        String?  @map("full_name") @db.VarChar(100)
+  avatarUrl       String?  @map("avatar_url") @db.VarChar(500)
+  planType        PlanType @default(FREE) @map("plan_type")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  lastAccessAt    DateTime? @map("last_access_at")
+  
+  playlists       Playlist[]
+  likes           Like[]
+  playHistory     PlayHistory[]
+  searches        Search[]
+  
+  @@map("users")
+}
+
+model Genre {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
+  description String?  @db.Text
+  colorHex    String   @default("#1DB954") @map("color_hex") @db.VarChar(7)
+  icon        String?  @db.VarChar(50)
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  songs       Song[]
+  albums      Album[]
+  
+  @@map("genres")
+}
+
+model Artist {
+  id                Int      @id @default(autoincrement())
+  name              String   @db.VarChar(100)
+  normalizedName    String   @map("normalized_name") @db.VarChar(100)
+  biography         String?  @db.Text
+  imageUrl          String?  @map("image_url") @db.VarChar(500)
+  country           String?  @db.VarChar(50)
+  birthDate         DateTime? @map("birth_date") @db.Date
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  
+  songs             Song[]
+  albums            Album[]
+  
+  @@map("artists")
+}
+
+model Album {
+  id              Int      @id @default(autoincrement())
+  title           String   @db.VarChar(150)
+  artistId        Int      @map("artist_id")
+  genreId         Int?     @map("genre_id")
+  releaseYear     Int?     @map("release_year")
+  coverUrl        String?  @map("cover_url") @db.VarChar(500)
+  description     String?  @db.Text
+  totalSongs      Int      @default(0) @map("total_songs")
+  totalDuration   String?  @map("total_duration") @db.VarChar(10)
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  artist          Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  genre           Genre?   @relation(fields: [genreId], references: [id], onDelete: SetNull)
+  songs           Song[]
+  
+  @@map("albums")
+}
+
+model Song {
+  id                    Int      @id @default(autoincrement())
+  title                 String   @db.VarChar(200)
+  normalizedTitle       String   @map("normalized_title") @db.VarChar(200)
+  artistId              Int      @map("artist_id")
+  albumId               Int?     @map("album_id")
+  genreId               Int?     @map("genre_id")
+  
+  // Backblaze B2 file info
+  fileKey               String   @map("file_key") @db.VarChar(500)
+  fileName              String   @map("file_name") @db.VarChar(300)
+  fileSize              BigInt?  @map("file_size")
+  duration              String?  @db.VarChar(10)
+  bitrate               Int?
+  format                FileFormat @default(MP3)
+  
+  // Metadata
+  releaseYear           Int?     @map("release_year")
+  trackNumber           Int?     @map("track_number")
+  lyrics                String?  @db.Text
+  language              String   @default("es") @db.VarChar(10)
+  
+  // URLs
+  coverUrl              String?  @map("cover_url") @db.VarChar(500)
+  previewUrl            String?  @map("preview_url") @db.VarChar(500)
+  
+  // Statistics
+  totalPlays            BigInt   @default(0) @map("total_plays")
+  monthlyPlays          BigInt   @default(0) @map("monthly_plays")
+  weeklyPlays           BigInt   @default(0) @map("weekly_plays")
+  totalLikes            Int      @default(0) @map("total_likes")
+  
+  // Control
+  isActive              Boolean  @default(true) @map("is_active")
+  isFeatured            Boolean  @default(false) @map("is_featured")
+  isTrending            Boolean  @default(false) @map("is_trending")
+  uploadedAt            DateTime @default(now()) @map("uploaded_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  artist                Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  album                 Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  genre                 Genre?   @relation(fields: [genreId], references: [id], onDelete: SetNull)
+  
+  playlistSongs         PlaylistSong[]
+  likes                 Like[]
+  playHistory           PlayHistory[]
+  
+  @@map("songs")
+  @@fulltext([title, normalizedTitle, lyrics])
+}
+
+model Playlist {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(100)
+  description     String?  @db.Text
+  userId          Int      @map("user_id")
+  isPublic        Boolean  @default(false) @map("is_public")
+  coverUrl        String?  @map("cover_url") @db.VarChar(500)
+  totalSongs      Int      @default(0) @map("total_songs")
+  totalDuration   String?  @map("total_duration") @db.VarChar(10)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songs           PlaylistSong[]
+  
+  @@map("playlists")
+}
+
+model PlaylistSong {
+  id          Int      @id @default(autoincrement())
+  playlistId  Int      @map("playlist_id")
+  songId      Int      @map("song_id")
+  order       Int
+  addedAt     DateTime @default(now()) @map("added_at")
+  
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song        Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  
+  @@unique([playlistId, songId])
+  @@map("playlist_songs")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  songId    Int      @map("song_id")
+  likedAt   DateTime @default(now()) @map("liked_at")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, songId])
+  @@map("likes")
+}
+
+model PlayHistory {
+  id              BigInt   @id @default(autoincrement())
+  songId          Int      @map("song_id")
+  userId          Int?     @map("user_id")
+  ipAddress       String?  @map("ip_address") @db.VarChar(45)
+  userAgent       String?  @map("user_agent") @db.Text
+  playedDuration  Int?     @map("played_duration")
+  isCompleted     Boolean  @default(false) @map("is_completed")
+  playedAt        DateTime @default(now()) @map("played_at")
+  
+  song            Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("play_history")
+}
+
+model Search {
+  id              BigInt   @id @default(autoincrement())
+  term            String   @db.VarChar(200)
+  userId          Int?     @map("user_id")
+  resultsFound    Int      @default(0) @map("results_found")
+  ipAddress       String?  @map("ip_address") @db.VarChar(45)
+  searchedAt      DateTime @default(now()) @map("searched_at")
+  
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("searches")
+}
+
+enum PlanType {
+  FREE
+  PREMIUM
+}
+
+enum FileFormat {
+  MP3
+  WAV
+  FLAC
+  M4A
+}
